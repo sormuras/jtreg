@@ -25,12 +25,11 @@ package p;
 
 import libpkg.*;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
-public class JUnitTest {
+class JUnitTest {
     @Test
-    public void test() {
+    void test() {
         System.out.println(new LibClass().hello());
     }
 }
