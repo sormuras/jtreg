@@ -213,7 +213,7 @@ public class Tool {
 
     private static void checkJavaOSVersion(String expectVersion) {
         String osVersion = System.getProperty("os.version");
-        if (!osVersion.equals(expectVersion)) {
+        if (!osVersion.startsWith(expectVersion)) {
             System.err.println("The version of JDK you are using to run jtreg does not report the OS version correctly.");
             System.err.println("    java.home:    " + System.getProperty("java.home"));
             System.err.println("    java.version: " + System.getProperty("java.version"));
@@ -1124,7 +1124,7 @@ public class Tool {
         testManager.addGroups(testGroupArgs);
 
         if (testManager.isEmpty())
-            throw testManager.new NoTests();
+            throw new TestManager.NoTests();
 
         boolean multiRun = testManager.isMultiRun();
 
