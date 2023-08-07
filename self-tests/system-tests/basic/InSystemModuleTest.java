@@ -33,13 +33,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 class InSystemModuleTest {
     @Test
     @Tag("system")
-    void test(@TempDir Path temp) throws Exception {
-        // Prepare test in temporary directory
+    void test() throws Exception {
+        // Prepare test files in build directory
+        var temp = Files.createDirectories(Path.of("build/self-tests", "basic", "InSystemModuleTest"));
         var root = Files.createDirectories(temp.resolve("root"));
         Files.writeString(root.resolve("TEST.ROOT"), """
                 JUnit.dirs=.
@@ -62,15 +62,15 @@ class InSystemModuleTest {
                 """);
 
         // System tests require a pre-built jtreg image
-        var imageDirectory = Path.of("build/images/jtreg");
-        var jar = imageDirectory.resolve( "lib/jtreg.jar");
-        assertTrue(Files.isRegularFile(jar), "JAR file not found: " + jar);
+        var jtImageDirectory = Path.of("build/images/jtreg");
+        var jtJarFile = jtImageDirectory.resolve( "lib/jtreg.jar");
+        assertTrue(Files.isRegularFile(jtJarFile), "JAR file not found: " + jtJarFile);
 
         // Launch jtreg via Java's command-line program
-        var jtReportsDir = Files.createDirectories(temp.resolve(".build/reports"));
-        var jtWorkingDir = Files.createDirectories(temp.resolve(".build/working"));
+        var jtReportsDir = Files.createDirectories(temp.resolve("jt-reports"));
+        var jtWorkingDir = Files.createDirectories(temp.resolve("jt-working"));
         var command = List.of("java",
-                "-jar", jar.toString(),
+                "-jar", jtJarFile.toString(),
                 "-v1",
                 "-r:" + jtReportsDir,
                 "-w:" + jtWorkingDir,
