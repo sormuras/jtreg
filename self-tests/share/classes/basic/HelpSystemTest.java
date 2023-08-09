@@ -27,34 +27,19 @@ package basic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
+import api.SystemTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 class HelpSystemTest {
     @Test
     @Tag("system")
-    void test() throws Exception {
-        // System tests require a pre-built jtreg image
-        var imageDirectory = Path.of("build/images/jtreg");
-        var jar = imageDirectory.resolve( "lib/jtreg.jar");
-        assertTrue(Files.isRegularFile(jar), "JAR file not found: " + jar);
+    void test(TestInfo info) {
+        var result = SystemTest.of(info).run("--help");
 
-        // Launch jtreg via Java's command-line program
-        var command = List.of("java", "-jar", jar.toString(), "--help");
-        var process = new ProcessBuilder(command).redirectErrorStream(true).start();
-        if (!process.waitFor(9, TimeUnit.SECONDS)) fail("Timeout!");
-        var output = new String(process.getInputStream().readAllBytes());
-
-        // Verify expected return values
-        assertEquals(0, process.exitValue(), output);
+        assertEquals(0, result.process().exitValue(), result.output());
         assertLinesMatch(
                 """
                 Usage:
@@ -65,6 +50,6 @@ class HelpSystemTest {
                 
                 >> MANY MORE HELP LINES >>
                 """.lines(),
-                output.lines());
+                result.output().lines());
     }
 }

@@ -56,6 +56,7 @@ class RunMainProgramSystemTest {
                 public class Main {
                   public static void main(String... args) {
                     System.out.println("out");
+                    System.out.println(System.getenv("windir"));
                     System.err.println("err");
                   }
                 }
