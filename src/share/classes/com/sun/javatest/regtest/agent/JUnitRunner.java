@@ -137,6 +137,7 @@ public class JUnitRunner implements MainActionHelper.TestRunner {
 
             LauncherConfig launcherConfig = LauncherConfig.builder()
                 .addTestExecutionListeners(new PrintingListener(System.err, verbose))
+                .addTestExecutionListeners(new JUnitFlightRecordingExecutionListener())
                 .addTestExecutionListeners(summaryGeneratingListener)
                 .build();
 

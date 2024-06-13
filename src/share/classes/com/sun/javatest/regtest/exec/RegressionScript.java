@@ -26,6 +26,7 @@
 package com.sun.javatest.regtest.exec;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
@@ -79,6 +80,8 @@ import com.sun.javatest.regtest.report.Verbose;
 import com.sun.javatest.regtest.tool.Version;
 import com.sun.javatest.regtest.util.FileUtils;
 import com.sun.javatest.regtest.util.StringUtils;
+import jdk.jfr.Configuration;
+import jdk.jfr.Recording;
 
 import static com.sun.javatest.regtest.RStatus.error;
 import static com.sun.javatest.regtest.RStatus.passed;
@@ -271,7 +274,7 @@ public class RegressionScript extends Script {
 
                 while (!actionList.isEmpty()) {
                     Action action = actionList.remove();
-                    status = action.run();
+                    status = run(action);
                     if (status.getType() != Status.PASSED)
                         break;
                 }
@@ -343,6 +346,34 @@ public class RegressionScript extends Script {
         if (v.length() > 0) {
             pw.println(v);
         }
+    }
+
+    private Status run(Action action) throws TestRunException {
+        try {
+            Class.forName("jdk.jfr.Recording");
+        } catch (ClassNotFoundException e) {
+            return action.run(); // no JFR, no recording
+        }
+
+        var status = Status.passed("OK");
+        try {
+            Configuration configuration = Configuration.getConfiguration("default");
+            try (Recording recording = new Recording(configuration)) {
+                recording.start();
+                status = action.run();
+                recording.stop();
+
+                String jfrPath = getTestResult().getWorkRelativePath().replaceAll("\\.jtr$", ".jfr");
+                Path jfrFile = params.getWorkDirectory().getRoot().toPath().resolve(jfrPath);
+                Files.createDirectories(jfrFile.getParent());
+                recording.dump(jfrFile);
+            }
+        } catch (java.text.ParseException exception) {
+            System.err.println("Parsing flight recording configuration failed: " + exception);
+        } catch (IOException exception) {
+            System.err.println("Flight recording failed due to: " + exception);
+        }
+        return status;
     }
 
     /**

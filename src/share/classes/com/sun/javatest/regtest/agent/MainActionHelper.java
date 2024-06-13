@@ -25,6 +25,10 @@
 
 package com.sun.javatest.regtest.agent;
 
+import jdk.jfr.Configuration;
+import jdk.jfr.Recording;
+
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -32,7 +36,9 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -329,11 +335,29 @@ public class MainActionHelper extends ActionHelper {
         @Override
         public void run() {
             try {
-                // RUN JAVA PROGRAM
-                result = method.invoke(null, args);
+                Configuration configuration = Configuration.getConfiguration("default");
+                try (Recording recording = new Recording(configuration)) {
+                    recording.start();
+                    // RUN JAVA PROGRAM
+                    result = method.invoke(null, args);
+                    recording.stop();
 
+                    //String jfrPath = getTestResult().getWorkRelativePath().replaceAll("\\.jtr$", ".jfr");
+                    //Path jfrFile = params.getWorkDirectory().getRoot().toPath().resolve(jfrPath);
+                    // Files.createDirectories(jfrFile.getParent());
+                    Path file = Files.createTempFile("recording", ".jfr");
+                    System.out.println(file.toUri());
+                    recording.dump(file);
+                }
                 out.println();
                 out.println(MSG_PREFIX + "Test complete.");
+                out.println();
+            } catch (ParseException | IOException e) {
+                e.printStackTrace(out);
+                t = e;
+                out.println();
+                out.println(MSG_PREFIX + "Test threw exception: " + t.getClass().getName());
+                out.println(MSG_PREFIX + "shutting down test");
                 out.println();
             } catch (InvocationTargetException e) {
                 // main must have thrown an exception, so the test failed
