@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -534,6 +535,18 @@ public class CompileAction extends Action {
         }
 
         javacArgs.addAll(args);
+
+        Path extraJavaCommandArgsFile = Path.of("extra-javac-command.args");
+        if (Files.exists(extraJavaCommandArgsFile)) {
+            try {
+                for (var line : Files.readAllLines(extraJavaCommandArgsFile)) {
+                    if (line.isBlank() || line.startsWith("#")) continue;
+                    javacArgs.add(line);
+                }
+            } catch (IOException exception) {
+                throw new UncheckedIOException(exception);
+            }
+        }
 
         return javacArgs.toList();
     }
