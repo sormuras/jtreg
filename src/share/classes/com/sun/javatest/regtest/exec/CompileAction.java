@@ -374,7 +374,8 @@ public class CompileAction extends Action {
 
         Status status;
 
-        if (script.isCheck()) {
+        String extraJavacArgsFileName = System.getenv("JTREG_EXTRA_JAVAC_ARGS_FILE");
+        if (script.isCheck() && extraJavacArgsFileName == null) {
             status = passed(CHECK_PASS);
         } else {
             // run jasm and jcod first (if needed) in case the resulting class
@@ -536,10 +537,10 @@ public class CompileAction extends Action {
 
         javacArgs.addAll(args);
 
-        Path extraJavaCommandArgsFile = Path.of("extra-javac-command.args");
-        if (Files.exists(extraJavaCommandArgsFile)) {
+        String extraJavacArgsFileName = System.getenv("JTREG_EXTRA_JAVAC_ARGS_FILE");
+        if (extraJavacArgsFileName != null) {
             try {
-                for (var line : Files.readAllLines(extraJavaCommandArgsFile)) {
+                for (var line : Files.readAllLines(Path.of(extraJavacArgsFileName))) {
                     if (line.isBlank() || line.startsWith("#")) continue;
                     javacArgs.add(line);
                 }
