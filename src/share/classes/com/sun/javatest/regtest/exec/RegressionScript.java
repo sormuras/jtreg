@@ -845,11 +845,11 @@ public class RegressionScript extends Script {
                 // Put necessary jar files onto the module path as automatic modules.
                 // We cannot use the ${jtreg.home}/lib directory directly since it contains
                 // other jar files which are not valid as automatic modules.
-                if (needJUnit) params.getJUnitPath().asList().forEach(mp::append);
+                if (needJUnit || needTestNG) params.getJUnitPath().asList().forEach(mp::append);
                 if (needTestNG) params.getTestNGPath().asList().forEach(mp::append);
             }
         } else {
-            if (needJUnit)
+            if (needJUnit || needTestNG)
                 cp.append(params.getJUnitPath());
 
             if (needTestNG)
