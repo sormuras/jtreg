@@ -366,7 +366,7 @@ public class CompileAction extends Action {
         if (runJavac
                 && !script.disablePreview()
                 && !seenEnablePreview
-                && script.enablePreview() || usesLibraryCompiledWithPreviewEnabled()
+                && (script.enablePreview() || usesLibraryCompiledWithPreviewEnabled())
                 && (libLocn == null || libLocn.isTest())) {
             if (insertPos == -1) { // happens for example in "-proc:only CLASS" cases
                 insertPos = 0;     // prepend in order to not mess with variadic arguments
