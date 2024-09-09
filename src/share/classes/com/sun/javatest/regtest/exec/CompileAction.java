@@ -327,7 +327,6 @@ public class CompileAction extends Action {
         List<String> jcodArgs = new ArrayList<>();
         boolean runJavac = process;
 
-        int insertPos = -1;
         boolean seenSourceOrRelease = false;
         boolean seenEnablePreview = false;
 
@@ -335,9 +334,6 @@ public class CompileAction extends Action {
             if (currArg.endsWith(".java")) {
                 if (!(new File(currArg)).exists())
                     throw new TestRunException(CANT_FIND_SRC + currArg);
-                if (insertPos == -1) {
-                    insertPos = javacArgs.size();
-                }
                 javacArgs.add(currArg);
                 runJavac = true;
             } else if (currArg.endsWith(".jasm")) {
@@ -353,9 +349,6 @@ public class CompileAction extends Action {
                     case "-source":
                     case "--source":
                     case "--release":
-                        if (insertPos == -1) {
-                            insertPos = javacArgs.size();
-                        }
                         seenSourceOrRelease= true;
                         break;
                 }
@@ -368,14 +361,12 @@ public class CompileAction extends Action {
                 && !seenEnablePreview
                 && (script.enablePreview() || usesLibraryCompiledWithPreviewEnabled())
                 && (libLocn == null || libLocn.isTest())) {
-            if (insertPos == -1) { // happens for example in "-proc:only CLASS" cases
-                insertPos = 0;     // prepend in order to not mess with variadic arguments
-            }
-            javacArgs.add(insertPos, "--enable-preview");
+            // prepend additional arguments in order to not mess with variadic arguments
+            javacArgs.add(0, "--enable-preview");
             if (!seenSourceOrRelease) {
                 int v = script.getTestJDKVersion().major;
-                javacArgs.add(insertPos + 1, "-source");
-                javacArgs.add(insertPos + 2, String.valueOf(v));
+                javacArgs.add(1, "-source");
+                javacArgs.add(2, String.valueOf(v));
             }
         }
 
