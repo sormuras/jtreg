@@ -26,6 +26,11 @@
 package com.sun.javatest.regtest.report;
 
 import java.io.PrintWriter;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 import com.sun.javatest.Harness;
 import com.sun.javatest.Status;
@@ -56,14 +61,15 @@ public class VerboseHandler {
     }
 
     private void startingTest(TestResult tr) {
-        if (verbose.isDefault()) {
-            try {
-                TestDescription td = tr.getDescription();
-                out.println("runner starting test: "
-                        + td.getRootRelativeURL());
-            } catch(TestResult.Fault e) {
-                e.printStackTrace(System.err);
+        try {
+            TestDescription td = tr.getDescription();
+            String url = td.getRootRelativeURL();
+            startInstants.put(url, Instant.now());
+            if (verbose.isDefault()) {
+                out.println("runner starting test: " + url);
             }
+        } catch(TestResult.Fault e) {
+            e.printStackTrace(System.err);
         }
     } // starting()
 
@@ -134,7 +140,15 @@ public class VerboseHandler {
                 msg = "Error:  ";
             else
                 msg = "Unexpected status: ";
-            msg += td.getRootRelativeURL();
+
+            String url = td.getRootRelativeURL();
+            msg += url;
+
+            Instant start = startInstants.get(url);
+            if (start != null) {
+                msg += " [" + prettyPrint(Duration.between(start, Instant.now())) + "]";
+            }
+
             out.println(msg);
 
             if (times)
@@ -303,6 +317,13 @@ public class VerboseHandler {
         return null;
     } // getTestJDK()
 
+    private static String prettyPrint(Duration duration) {
+        return duration.truncatedTo(ChronoUnit.MILLIS).toString()
+                .substring(2) // strip "PT"
+                .replaceAll("(\\d[HMS])(?!$)", "$1 ") // for spacing
+                .toLowerCase(); //hms
+    }
+
     //----------member variables-------------------------------------------
 
     private static final String VERBOSE_TEST_SEP = "--------------------------------------------------";
@@ -312,4 +333,5 @@ public class VerboseHandler {
     private final PrintWriter out;
     private final PrintWriter err;
     private boolean doneSeparator;
+    private final Map<String, Instant> startInstants = new IdentityHashMap<>();
 }
