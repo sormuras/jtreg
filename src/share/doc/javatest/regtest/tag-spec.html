@@ -52,7 +52,7 @@
 <p>Comments and questions to:
 <a href="mailto:jtreg-use@openjdk.org">jtreg-use@openjdk.org</a>.
 <br>
-1.48, 20 February, 2026
+1.49, 7 May 2026
 </div>
 
 <p>This is a specification document, not a tutorial.  For more basic information
@@ -498,6 +498,10 @@ assumed.
 <dd>
 <p>The test uses native code, which must be provided separately, in a precompiled library,
 when the test is run.
+The jtreg tool adds <code>--enable-native-access=ALL-UNNAMED</code> to the list of Java test
+runtime command-line arguments for actions with <code>/native</code> tag -- unless
+there is one or more explicit custom <code>--enable-native-access</code> argument(s) present
+in the list of test runtime arguments.
 
 </dl>
 
