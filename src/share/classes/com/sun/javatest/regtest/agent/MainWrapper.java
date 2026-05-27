@@ -134,13 +134,14 @@ public class MainWrapper
 
                 // RUN JAVA PROGRAM
                 Class<?> c = Class.forName(className, false, cl);
-                if (MainMethodHelper.isModernMainSupported()) {
+                // enabled by default
+                String allowModernMain = System.getProperty("test.allowModernMain", "true");
+                if (Boolean.parseBoolean(allowModernMain) && MainMethodHelper.isModernMainSupported()) {
                     MainMethodHelper.executeModernMainClass(c, args);
-                    return;
+                } else {
+                    Method mainMethod = c.getMethod("main", String[].class);
+                    mainMethod.invoke(null, (Object) args);
                 }
-                Method mainMethod = c.getMethod("main", String[].class);
-                mainMethod.invoke(null, (Object) args);
-
             } catch (InvocationTargetException e) {
                 Throwable throwable = e.getTargetException();
                 throwable.printStackTrace(System.err);
