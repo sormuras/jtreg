@@ -1,6 +1,16 @@
-## [Unreleased](https://git.openjdk.org/jtreg/compare/jtreg-8.2.1+1...master)
+## [Unreleased](https://git.openjdk.org/jtreg/compare/jtreg-8.3+1...master)
+
+_nothing noteworthy, yet_
+
+## [8.3](https://git.openjdk.org/jtreg/compare/jtreg-8.2.1+1...jtreg-8.3+1)
 
 * Support [Compact Source Files and Instance Main Methods](https://openjdk.org/jeps/512) in main tests [CODETOOLS-7904141](https://bugs.openjdk.org/browse/CODETOOLS-7904141)
+
+* Add `--enable-native-access=ALL-UNNAMED` for actions tagged with `/native` [CODETOOLS-7904172](https://bugs.openjdk.org/browse/CODETOOLS-7904172)
+
+* Enhanced support in driver mode for tests using `@enablePreview` [CODETOOLS-7904149](https://bugs.openjdk.org/browse/CODETOOLS-7904149)
+
+* XML reports now include crash log data  [CODETOOLS-7904153](https://bugs.openjdk.org/browse/CODETOOLS-7904153)
 
 ## [8.2.1](https://git.openjdk.org/jtreg/compare/jtreg-8.2+1...jtreg-8.2.1+1)
 
